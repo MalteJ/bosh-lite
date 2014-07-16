@@ -5,11 +5,12 @@ set -x
 
 cd bosh-lite/aws
 
-vagrant up --provider=aws
+vagrant up --provider=aws | tee vagrantup.out
+export DIRECTORIP=`cat vagrantup.out | grep "bosh target" | cut -d, -f1 | rev | cut -d' ' -f1 | rev`
 
 export BOSH_USERNAME=admin
 export BOSH_PASSWORD=admin
-bosh target 54.88.199.99
+bosh target $DIRECTORIP
 
 bosh upload stemcell http://bosh-jenkins-gems-warden.s3.amazonaws.com/stemcells/latest-bosh-stemcell-warden.tgz
 
