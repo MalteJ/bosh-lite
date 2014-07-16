@@ -8,16 +8,15 @@ cd bosh-lite/aws
 vagrant up --provider=aws | tee vagrantup.out
 export DIRECTORIP=`cat vagrantup.out | grep "bosh target" | cut -d, -f1 | rev | cut -d' ' -f1 | rev`
 
-export BOSH_USERNAME=admin
-export BOSH_PASSWORD=admin
-bosh target $DIRECTORIP
+bosh --non-interactive target $DIRECTORIP
+bosh login admin admin
 
 bosh upload stemcell http://bosh-jenkins-gems-warden.s3.amazonaws.com/stemcells/latest-bosh-stemcell-warden.tgz
 
-export DIRECTORID=`bosh status | grep UUID | cut -dD -f2 | tr -d ' '`
+export DIRECTORUUID=`bosh status | grep UUID | cut -dD -f2 | tr -d ' '`
 
 cd /bosh-deployment
-sed -i "s/DIRECTORUUID/$DIRECTORUUID/g" *.yml
+sed -i "s/.*director_uuid.*/director_uuid: $DIRECTORUUID/" *.yml
 bosh deployment *.yml
 bosh deploy
 
