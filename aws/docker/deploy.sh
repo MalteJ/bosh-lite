@@ -3,7 +3,17 @@ echo "Deploying BOSH Lite Release"
 set -e
 set -x
 
-cd bosh-lite/aws
+function finish {
+  cd /bosh-lite/aws
+  vagrant destroy -f
+}
+trap finish EXIT
+
+cp /mnt/$BOSH_AWS_PRIVATE_KEY ~/id_rsa-vagrant
+chown root ~/id_rsa-vagrant
+export BOSH_LITE_PRIVATE_KEY=~/id_rsa-vagrant
+
+cd /bosh-lite/aws
 
 vagrant up --provider=aws | tee vagrantup.out
 export DIRECTORIP=`cat vagrantup.out | grep "bosh target" | cut -d, -f1 | rev | cut -d' ' -f1 | rev`
@@ -19,5 +29,3 @@ cd /bosh-deployment
 sed -i "s/.*director_uuid.*/director_uuid: $DIRECTORUUID/" *.yml
 bosh deployment *.yml
 bosh deploy
-
-vagrant destroy -f

@@ -26,4 +26,4 @@ RUN git clone https://github.com/MalteJ/bosh-lite.git
 
 ADD deploy.sh deploy.sh
 
-CMD ["./deploy.sh"]
+CMD ["bash","--login","-c",". /mnt/aws-env.sh && ./deploy.sh"]
